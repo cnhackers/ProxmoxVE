@@ -1,1 +1,152 @@
+# 创建黑名单配置文件
+echo "blacklist nouveau" | sudo tee /etc/modprobe.d/blacklist-nouveau.conf
+echo "options nouveau modeset=0" | sudo tee -a /etc/modprobe.d/blacklist-nouveau.conf
 
+或# 创建禁用配置文件
+sudo tee /etc/modprobe.d/blacklist-nouveau.conf << EOF
+blacklist nouveau
+options nouveau modeset=0
+EOF
+
+
+apt-get purge nvidia*
+
+
+# 更新内核并重启
+sudo update-initramfs -u
+sudo reboot
+
+# 更新initramfs并重启
+sudo update-initramfs -u
+sudo reboot
+
+# 验证禁用结果
+lsmod | grep nouveau  # 无输出则成功
+
+2. 安装编译依赖
+sudo apt update
+sudo apt install build-essential dkms linux-headers-$(uname -r)
+
+# 更新软件包并安装基础依赖
+sudo apt update && sudo apt upgrade -y
+sudo apt install dkms build-essential linux-headers-$(uname -r) -y
+
+3. 下载驱动文件
+官网地址：NVIDIA 驱动下载页
+选择版本：推荐 570.xx（根据显卡型号选择）
+文件示例：NVIDIA-Linux-x86_64-570.xx.run（保存到 ~/Downloads）
+
+# 停止图形界面服务（根据显示管理器调整）
+关掉x graphic 服务
+sudo systemctl stop lightdm(or sudo service lightdm stop)
+sudo systemctl stop gdm
+sudo systemctl stop kdm
+
+4.1 进入终端界面
+按 Ctrl + Alt + F3 切换到 TTY3，登录账户
+关闭图形界面：
+
+4.2 安装驱动
+# 进入下载目录
+cd ~/Downloads
+
+# 添加执行权限
+chmod +x NVIDIA-Linux-x86_64-*.run
+
+# 运行安装
+sudo ./NVIDIA-Linux-x86_64-*.run
+
+手动安装NVIDIA驱动（.run文件）指南
+13 7 月, 2025ricksteves评论
+以下是整理后的手动安装 NVIDIA 驱动（.run 文件）操作指南，按逻辑顺序优化步骤，并标注关键注意事项：
+
+操作流程概览
+禁用 Nouveau 驱动 → 2. 安装依赖 → 3. 下载驱动文件 → 4. 进入文本模式安装 → 5. 验证与故障处理
+详细步骤
+1. 禁用 Nouveau 驱动（避免冲突）
+# 创建禁用配置文件
+sudo tee /etc/modprobe.d/blacklist-nouveau.conf << EOF
+blacklist nouveau
+options nouveau modeset=0
+EOF
+
+# 更新内核并重启
+sudo update-initramfs -u
+sudo reboot
+2. 安装编译依赖
+sudo apt update
+sudo apt install build-essential dkms linux-headers-$(uname -r)
+3. 下载驱动文件
+官网地址：NVIDIA 驱动下载页
+选择版本：推荐 570.xx（根据显卡型号选择）
+文件示例：NVIDIA-Linux-x86_64-570.xx.run（保存到 ~/Downloads）
+4. 文本模式安装驱动
+4.1 进入终端界面
+按 Ctrl + Alt + F3 切换到 TTY3，登录账户
+关闭图形界面：
+sudo systemctl stop gdm   # 适用于 GNOME，KDE 用户替换为 `sddm` 或 `lightdm`
+4.2 安装驱动
+# 进入下载目录
+cd ~/Downloads
+
+# 添加执行权限
+chmod +x NVIDIA-Linux-x86_64-*.run
+
+# 运行安装
+sudo ./NVIDIA-Linux-x86_64-*.run
+安装选项建议：
+
+是否保留 Nouveau？ → No
+启用 3D 支持？ → Yes
+自动更新 Xorg 配置？ → Yes（除非有自定义配置）
+安装 32-bit 兼容库？ → 按需选择（通常选 No）
+4.3 恢复图形界面
+sudo systemctl start gdm  # 重启显示管理器
+# 按 Ctrl + Alt + F1 返回图形界面
+5. 验证安装
+nvidia-smi  # 出现 GPU 信息表即成功
+
+
+
+7. 安装nvidia驱动
+sudo chmod NVIDIA*.run
+sudo ./NVIDIA-Linux-x86_64-384.59.run –no-x-check -no-nouveau-check -no-opengl-files
+
+–no-opengl-files：表示只安装驱动文件，不安装OpenGL文件。这个参数不可省略，否则会导致登陆界面死循环，英语一般称为”login loop”或者”stuck in login”。
+–no-x-check：表示安装驱动时不检查X服务，非必需。
+–no-nouveau-check：表示安装驱动时不检查nouveau，非必需。
+-Z, --disable-nouveau：禁用nouveau。此参数非必需，因为之前已经手动禁用了nouveau。
+-A：查看更多高级选项。
+安装过程中一些选项
+
+The distribution-provided pre-install script failed! Are you sure you want to continue? 
+
+选择 yes 继续。
+
+Would you like to register the kernel module souces with DKMS? This will allow DKMS to automatically build a new module, if you install a different kernel later? 
+
+选择 No 继续。
+
+问题大概是：Nvidia's 32-bit compatibility libraries?
+
+选择 No 继续。
+
+Would you like to run the nvidia-xconfigutility to automatically update your x configuration so that the NVIDIA x driver will be used when you restart x? Any pre-existing x confile will be backed up.
+
+选择 Yes 继续
+
+选择NVIDIA Proprietary
+在这里插入图片描述
+在这里插入图片描述选择yes
+在这里插入图片描述
+选择第二个，构建initramfs
+在这里插入图片描述选yes
+在这里插入图片描述在这里插入图片描述
+在这里插入图片描述
+
+6.重启后
+
+nvidia-smi
+智能体编程
+SHELL
+1

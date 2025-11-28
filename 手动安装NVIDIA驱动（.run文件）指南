@@ -57,7 +57,13 @@ chmod +x NVIDIA-Linux-x86_64-*.run
 sudo ./NVIDIA-Linux-x86_64-*.run
 
 手动安装NVIDIA驱动（.run文件）指南
-13 7 月, 2025ricksteves评论
+
+提示按下面就行
+
+安装完记得开启x graphic 服务
+sudo systemctl start lightdm
+
+
 以下是整理后的手动安装 NVIDIA 驱动（.run 文件）操作指南，按逻辑顺序优化步骤，并标注关键注意事项：
 
 操作流程概览
